@@ -111,7 +111,9 @@ Flags are passed to the compiler proper via -Wfflag, e.g. -Wf--no-mov-id
 
 --no-mov-flow
   Use jmp instructions in implementing control flow.  This will substantially
-  speed up execution in larger projects.
+  speed up execution in larger projects.  If using floating point operations
+  with this flag, link to softfloat*_cf.o instead of the fully obfuscated
+  libraries.
 
 --mov-extern
   Use mov instructions to implement external function calls.  This is the

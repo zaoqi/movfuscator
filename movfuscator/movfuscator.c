@@ -2469,7 +2469,7 @@ static void cc_branch(char* t, char* b)
 		execution_off("(b0)");
 	}
 	else {
-		print("cmpl (%s), 1\n", b);
+		print("cmpl $1, (%s)\n", b);
 		print("je %s\n", t);
 	}
 }
@@ -3339,7 +3339,15 @@ static void emit2_nt(Node p, int nt)
 			jmp_jumpv("%eax");
 		}
 		else {
-			print("jmp "); emit_kid(p,0,nt); print("\n");
+			if (p->kids[0]->syms[0]) {
+				/* direct jump */
+				print("jmp %s\n", p->kids[0]->syms[0]->x.name);
+			}
+			else {
+				/* indirect jump */
+				print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+				print("jmp *%%eax\n");
+			}
 		}
 	}
 	else if (op==EQ+I) {
@@ -3350,7 +3358,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_eqi("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("je "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3362,7 +3371,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_gei("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jge "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3374,7 +3384,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_gti("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jg "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3386,7 +3397,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_lei("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jle "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3398,7 +3410,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_lti("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jl "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3410,7 +3423,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_nei("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jne "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3422,7 +3436,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_equ("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("je "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3434,7 +3449,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_geu("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jae "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3446,7 +3462,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_gtu("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("ja "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3458,7 +3475,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_leu("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jbe "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3470,7 +3488,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_ltu("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jb "); emit_sym(p,0,nt); print("\n");
 		}
 	}
@@ -3482,7 +3501,8 @@ static void emit2_nt(Node p, int nt)
 			jmp_neu("%ecx", "%eax", "%edx");
 		}
 		else {
-			print("cmpl "); emit_kid(p,1,nt); print(", "); emit_kid(p,0,nt); print("\n");
+			print("movl "); emit_kid(p,0,nt); print(", %%eax\n");
+			print("cmpl "); emit_kid(p,1,nt); print(", %%eax\n");
 			print("jne "); emit_sym(p,0,nt); print("\n");
 		}
 	}
